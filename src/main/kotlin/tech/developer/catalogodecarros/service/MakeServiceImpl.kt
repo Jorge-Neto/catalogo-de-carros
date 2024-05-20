@@ -3,6 +3,7 @@ package tech.developer.catalogodecarros.service
 import org.springframework.stereotype.Service
 import tech.developer.catalogodecarros.dto.MakeDTO
 import tech.developer.catalogodecarros.repository.MakeRepository
+import tech.developer.catalogodecarros.utils.exceptions.MakeException
 import tech.developer.catalogodecarros.utils.mapper.MakeMapper
 
 @Service
@@ -13,25 +14,46 @@ class MakeServiceImpl(
     @Suppress("DEPRECATED_IDENTITY_EQUALS")
     override fun createMake(makeDTO: MakeDTO): MakeDTO {
 
-        if (makeDTO.id !== -1) throw IllegalArgumentException("Id must be null or -1")
+        if (makeDTO.id !== -1) throw IllegalArgumentException("ID is not required in the request")
 
         val make = makeRepository.save(makeMapper.toEntity(makeDTO))
         return makeMapper.fromEntity(make);
     }
 
     override fun getMakes(): List<MakeDTO> {
-        TODO("Not yet implemented")
+        val makesList = makeRepository.getAllMakes()
+
+        if (makesList.isEmpty()) throw MakeException("List of makes is empty")
+
+        return makesList.map {
+            makeMapper.fromEntity(it)
+        }
     }
 
     override fun getMake(id: Int): MakeDTO {
-        TODO("Not yet implemented")
+        val optionalMake = makeRepository.findById(id)
+        val make = optionalMake.orElseThrow { MakeException("Make with id $id is not present") }
+        return makeMapper.fromEntity(make)
     }
 
     override fun updateMake(makeDTO: MakeDTO): MakeDTO {
-        TODO("Not yet implemented")
+        val exists = makeRepository.existsById(makeDTO.id)
+        if (!exists)
+            throw MakeException("Make with id ${makeDTO.id} is not present")
+
+        if (makeDTO.name == "Default Make")
+            throw MakeException("Complete make object is expected")
+
+        makeRepository.save(makeMapper.toEntity(makeDTO))
+        return makeDTO
     }
 
     override fun deleteMake(id: Int) {
-        TODO("Not yet implemented")
+        val exists = makeRepository.existsById(id)
+
+        if (!exists)
+            throw MakeException("Make with id $id is not present")
+
+        makeRepository.deleteById(id)
     }
 }
