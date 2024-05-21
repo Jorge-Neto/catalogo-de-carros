@@ -1,5 +1,6 @@
 package tech.developer.catalogodecarros
 
+import jakarta.transaction.Transactional
 import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -12,6 +13,8 @@ import tech.developer.catalogodecarros.repository.MakeRepository
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@Transactional
+@TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class MakeResourceIntTests {
 
     @Autowired
@@ -20,80 +23,116 @@ class MakeResourceIntTests {
     @Autowired
     lateinit var repository: MakeRepository
 
+    private val requestPath: String = "/make"
+
+    @BeforeEach
+    fun setUp() {
+        repository.deleteAll()
+        val savedMake = repository.save(buildMake("BYD"))
+        assert(savedMake.id != 0) { "Saved Make should have a generated ID." }
+    }
+
     @Test
+    @Order(1)
     fun contextLoads() {
     }
 
-    @BeforeAll
-    fun insertData() {
-        repository.save(buildMake("BYD"))
-    }
-
     @Test
-    fun `get one Make`() {
-        val getPath = "/make"
-        mockMvc.get("$getPath/1")
-            .andExpect {
-                status { isOk() }
-                jsonPath("$.id") { value(1) }
-            }//.andDo { print() }
-    }
-
-    @Test
-    fun `update a Make`() {
-        val putPath = "/make"
-        val body = """{ "id": 1, "name": "Cherry" }""".trimIndent()
-        mockMvc.put(putPath) {
-            contentType = MediaType.APPLICATION_JSON
-            content = body
-        }.andExpect {
-            status { isOk() }
-            content { contentType(MediaType.APPLICATION_JSON) }
-            content { json("""{"id":1,"name":"Cherry"}""") }
-        }//.andDo { print() }
-    }
-
-    @Test
-    fun `delete one Make`() {
-        val deletePath = "/make"
-        mockMvc.delete("$deletePath/1")
-            .andExpect {
-                status { isNoContent() }
-            }//.andDo { print() }
-    }
-
-    @Test
+    @Order(2)
     fun `create a Make`() {
-        val postPath = "/make"
-        val body = """
-			{
-				"name": "Mazda"
-			}
-		""".trimIndent()
+        val body = """{ "name": "Mazda" }""".trimIndent()
 
-        mockMvc.post(postPath) {
+        mockMvc.post(requestPath) {
             contentType = MediaType.APPLICATION_JSON
             content = body
         }.andExpect {
             status { isCreated() }
             content { contentType(MediaType.APPLICATION_JSON) }
+            jsonPath("$.id") { isNumber() }
+            jsonPath("$.name") { value("Mazda") }
         }//.andDo { print() }
     }
 
-    @AfterAll
+    @Test
+    @Order(3)
     fun `get all Makes`() {
-        val getPath = "/make"
+        repository.save(buildMake("Mazda"))
 
-        mockMvc.get(getPath) {
-            contentType = MediaType.APPLICATION_JSON
-        }.andExpect {
-            status { isOk() }
-            jsonPath("$[0].name") { value("Mazda") }
-        }.andDo { print() }
+        mockMvc.get(requestPath)
+            .andExpect {
+                status { isOk() }
+                jsonPath("$[0].name") { value("BYD") }
+                jsonPath("$[1].name") { value("Mazda") }
+            }//.andDo { print() }
     }
 
-    private fun buildMake(
-        name: String,
-        id: Int = -1,
-    ) = Make(id, name)
+    @Test
+    @Order(4)
+    fun `get one Make`() {
+        val make = repository.findAll().first()
+        mockMvc.get("$requestPath/${make.id}")
+            .andExpect {
+                status { isOk() }
+                jsonPath("$.id") { value(make.id) }
+                jsonPath("$.name") { value("BYD") }
+            }//.andDo { print() }
+    }
+
+    @Test
+    @Order(5)
+    fun `update a Make`() {
+        val make = repository.findAll().first()
+        val body = """{ "id": ${make.id}, "name": "Cherry" }""".trimIndent()
+        mockMvc.put(requestPath) {
+            contentType = MediaType.APPLICATION_JSON
+            content = body
+        }.andExpect {
+            status { isOk() }
+            content { contentType(MediaType.APPLICATION_JSON) }
+            jsonPath("$.id") { value(make.id) }
+            jsonPath("$.name") { value("Cherry") }
+        }//.andDo { print() }
+    }
+
+    @Test
+    @Order(6)
+    fun `delete one Make`() {
+        val make = repository.findAll().first()
+        mockMvc.delete("$requestPath/${make.id}")
+            .andExpect {
+                status { isNoContent() }
+            }//.andDo { print() }
+
+        mockMvc.get("/make/${make.id}")
+            .andExpect {
+                status { isBadRequest() }
+            }//.andDo { print() }
+    }
+
+    @Test
+    @Order(7)
+    fun `create a Make with empty name should fail`() {
+        val body = """{ "name": "" }""".trimIndent()
+
+        mockMvc.post(requestPath) {
+            contentType = MediaType.APPLICATION_JSON
+            content = body
+        }.andExpect {
+            status { isBadRequest() }
+        }
+    }
+
+    @Test
+    @Order(8)
+    fun `update a non-existent Make should fail`() {
+        val body = """{ "id": 9999, "name": "NonExistent" }""".trimIndent()
+        mockMvc.put(requestPath) {
+            contentType = MediaType.APPLICATION_JSON
+            content = body
+        }.andExpect {
+            status { isBadRequest() }
+        }
+    }
+
+    private fun buildMake(name: String, id: Int = -1) = Make(id, name)
 }

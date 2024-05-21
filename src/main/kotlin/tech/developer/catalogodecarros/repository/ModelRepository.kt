@@ -6,6 +6,6 @@ import tech.developer.catalogodecarros.entity.Make
 
 interface MakeRepository: CrudRepository<Make, Int> {
 
-    @Query("SELECT ma FROM Make as ma")
+    @Query("SELECT m FROM Make as m")
     fun getAllMakes(): List<Make>
 }
