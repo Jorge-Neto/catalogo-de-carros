@@ -13,9 +13,7 @@ class MakeServiceImpl(
     private val modelRepository: ModelRepository,
     private var makeMapper: MakeMapper
 ) : MakeService {
-    @Suppress("DEPRECATED_IDENTITY_EQUALS")
     override fun createMake(makeDTO: MakeDTO): MakeDTO {
-
         if (makeDTO.id != -1) throw IllegalArgumentException("ID is not required in the request")
 
         if (makeDTO.name.isEmpty()) throw IllegalArgumentException("Name cannot be empty")

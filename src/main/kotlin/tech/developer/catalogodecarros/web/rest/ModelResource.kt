@@ -28,7 +28,7 @@ class ModelResource(private val modelService: ModelService) {
     fun getModel(@PathVariable id: Int): ResponseEntity<ModelDTO> =
         ResponseEntity.ok(modelService.getModel(id))
 
-    @PutMapping()
+    @PutMapping
     fun updateModel(@RequestBody modelDTO: ModelDTO): ResponseEntity<ModelDTO> =
         ResponseEntity.ok(modelService.updateModel(modelDTO))
 

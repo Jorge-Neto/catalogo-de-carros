@@ -29,7 +29,7 @@ class MakeResource(private val makeService: MakeService) {
     fun getMake(@PathVariable id: Int): ResponseEntity<MakeDTO> =
         ResponseEntity.ok(makeService.getMake(id))
 
-    @PutMapping()
+    @PutMapping
     fun updateMake(@RequestBody makeDTO: MakeDTO): ResponseEntity<MakeDTO> =
         ResponseEntity.ok(makeService.updateMake(makeDTO))
 
