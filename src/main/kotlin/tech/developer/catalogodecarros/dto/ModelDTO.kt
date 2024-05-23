@@ -1,6 +1,7 @@
 package tech.developer.catalogodecarros.dto
 
-data class MakeDTO(
+data class ModelDTO(
     var id: Int = -1,
-    var name: String = "Default Make",
+    var name: String = "Default Model",
+    var makeId: Int,
 )

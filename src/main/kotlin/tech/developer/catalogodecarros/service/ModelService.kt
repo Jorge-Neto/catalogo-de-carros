@@ -1,15 +1,17 @@
 package tech.developer.catalogodecarros.service
 
-import tech.developer.catalogodecarros.dto.MakeDTO
+import tech.developer.catalogodecarros.dto.ModelDTO
 
-interface MakeService {
-    fun createMake(makeDTO: MakeDTO): MakeDTO
+interface ModelService {
+    fun createModel(modelDTO: ModelDTO): ModelDTO
 
-    fun getMakes(): List<MakeDTO>
+    fun getModels(): List<ModelDTO>
 
-    fun getMake(id: Int): MakeDTO
+    fun findModelsByMakeId(makeId: Int): List<ModelDTO>
 
-    fun updateMake(makeDTO: MakeDTO): MakeDTO
+    fun getModel(id: Int): ModelDTO
 
-    fun deleteMake(id: Int)
+    fun updateModel(modelDTO: ModelDTO): ModelDTO
+
+    fun deleteModel(id: Int)
 }

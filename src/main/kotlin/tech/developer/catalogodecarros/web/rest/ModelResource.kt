@@ -2,38 +2,37 @@ package tech.developer.catalogodecarros.web.rest
 
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
-import tech.developer.catalogodecarros.dto.MakeDTO
-import tech.developer.catalogodecarros.service.MakeService
+import org.springframework.web.bind.annotation.*
+import tech.developer.catalogodecarros.dto.ModelDTO
+import tech.developer.catalogodecarros.service.ModelService
 
 @RestController
-@RequestMapping("/make")
-class MakeResource(private val makeService: MakeService) {
+@RequestMapping("/model")
+class ModelResource(private val modelService: ModelService) {
 
     @PostMapping
-    fun createMake(@RequestBody makeDTO: MakeDTO): ResponseEntity<MakeDTO> =
-        ResponseEntity(makeService.createMake(makeDTO), HttpStatus.CREATED)
+    fun createModel(@RequestBody modelDTO: ModelDTO): ResponseEntity<ModelDTO> =
+        ResponseEntity(modelService.createModel(modelDTO), HttpStatus.CREATED)
 
     @GetMapping
-    fun getMakes(): ResponseEntity<List<MakeDTO>> =
-        ResponseEntity.ok(makeService.getMakes())
+    fun getModels(): ResponseEntity<List<ModelDTO>> =
+        ResponseEntity.ok(modelService.getModels())
+
+
+    @GetMapping("make/{makeId}")
+    fun getModelsByMakeId(@PathVariable makeId: Int): ResponseEntity<List<ModelDTO>> =
+        ResponseEntity.ok(modelService.findModelsByMakeId(makeId))
+
 
     @GetMapping("/{id}")
-    fun getMake(@PathVariable id: Int): ResponseEntity<MakeDTO> =
-        ResponseEntity.ok(makeService.getMake(id))
+    fun getModel(@PathVariable id: Int): ResponseEntity<ModelDTO> =
+        ResponseEntity.ok(modelService.getModel(id))
 
     @PutMapping()
-    fun updateMake(@RequestBody makeDTO: MakeDTO): ResponseEntity<MakeDTO> =
-        ResponseEntity.ok(makeService.updateMake(makeDTO))
+    fun updateModel(@RequestBody modelDTO: ModelDTO): ResponseEntity<ModelDTO> =
+        ResponseEntity.ok(modelService.updateModel(modelDTO))
 
     @DeleteMapping("/{id}")
-    fun deleteMake(@PathVariable id: Int): ResponseEntity<Unit> =
-        ResponseEntity(makeService.deleteMake(id), HttpStatus.NO_CONTENT)
+    fun deleteModel(@PathVariable id: Int): ResponseEntity<Unit> =
+        ResponseEntity(modelService.deleteModel(id), HttpStatus.NO_CONTENT)
 }

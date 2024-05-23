@@ -19,4 +19,10 @@ class ExceptionHandler {
         val error = ApiError(exception.message)
         return ResponseEntity(error, error.status)
     }
+
+    @ExceptionHandler(ModelException::class)
+    fun modelExceptionHandler(exception: Exception): ResponseEntity<ApiError> {
+        val error = ApiError(exception.message)
+        return ResponseEntity(error, error.status)
+    }
 }

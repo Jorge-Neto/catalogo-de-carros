@@ -1,14 +1,14 @@
 package tech.developer.catalogodecarros.entity
 
-import jakarta.persistence.Entity
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.GenerationType
-import jakarta.persistence.Id
+import jakarta.persistence.*
 
 @Entity
-class Make (
+class Model(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Int,
     var name: String,
+
+    @Column(name = "make_id", nullable = false)
+    var makeId: Int,
 )
